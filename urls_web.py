@@ -2,5 +2,6 @@
 from application.handlers import MainHandler
 
 urls_web = [
+    
     (r'/', MainHandler.IndexHandler)
 ]
