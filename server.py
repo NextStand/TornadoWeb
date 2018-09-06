@@ -18,7 +18,7 @@ define("port", default=8000, type=int, help="run server on the given port")
 class Application(tornado.web.Application):
     def __init__(self, *args, **kwargs):
         super(Application, self).__init__(*args, **kwargs)
-        self.redis = redis.Redis(**config.redis_options)
+        self.redis = redis.StrictRedis(**config.redis_options)
 
 
 def main():
