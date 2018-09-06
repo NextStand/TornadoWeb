@@ -1,5 +1,5 @@
 # coding:utf-8
-
+__author__ = 'BLUE'
 import os
 from application.base.BaseHandler import StaticFileBaseHandler
 
@@ -13,10 +13,9 @@ settings = dict(
 )
 
 
-
 # 数据库配置参数
 database_options = dict(
-    host="192.168.0.175",
+    host="192.168.199.125",
     db="ihome",
     user="root",
     password="hanmo"
@@ -24,7 +23,7 @@ database_options = dict(
 
 # Redis配置参数
 redis_options = dict(
-    host="127.0.0.1",
+    host="192.168.199.125",
     port=6379
 )
 
