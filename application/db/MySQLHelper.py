@@ -1,6 +1,6 @@
 # coding:utf-8
 __author__ = 'BLUE'
-__date__='2018-09-06'
+__time__ = '2018-09-10T01:24:56.709Z'
 
 import logging
 import config
@@ -135,9 +135,9 @@ class MySQLHelper(object):
             else:
                 yield conn.commit()
         raise gen.Return(ret)
-    
+
     @gen.coroutine
-    def addbackid(self,sql,args=None):
+    def addbackid(self, sql, args=None):
         """ 
         新增一条数据并返回主键值 
         :param sql:str sql语句
@@ -148,10 +148,31 @@ class MySQLHelper(object):
             try:
                 ret = None
                 with conn.cursor(cursor_cls=DictCursor) as cursor:
-                    yield cursor.execute(sql,args)
+                    yield cursor.execute(sql, args)
                     ret = cursor.lastrowid
             except Exception as e:
                 logging.error("addbackid error: %s" % e.args)
+                yield conn.rollback()
+            else:
+                yield conn.commit()
+            raise gen.Return(ret)
+
+    @gen.coroutine
+    def callproc(self, procname, args=()):
+        """ 
+        执行存储过程 
+        :param procname:str 存储过程名称
+        :param args:tuple | list  参数序列
+        :return:list 结果列表集
+        """
+        with (yield self.pool.Connection()) as conn:
+            try:
+                ret = None
+                with conn.cursor(cursor_cls=DictCursor) as cursor:
+                    yield cursor.callproc(procname, args)
+                    ret = cursor.fetchall()
+            except Exception as e:
+                logging.error("callproc error:---%s\n %s" % (procname, e.args))
                 yield conn.rollback()
             else:
                 yield conn.commit()
