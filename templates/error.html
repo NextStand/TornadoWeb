@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>出错啦</title>
+    <style>
+        a {
+            font-size: 18px;
+            text-decoration: none;
+            color: #59a4ae;
+        }
+
+        @media screen and (max-width: 1367px) {
+            .error {
+                right: 25%;
+                top: 55%;
+            }
+        }
+
+        @media screen and (min-width: 1600px) {
+            .error {
+                right: 27%;
+                top: 58%;
+            }
+        }
+
+        .error {
+            width: 60px;
+            height: 20px;
+            position: absolute;
+            transform: rotate(-13deg);
+            color: #fff;
+            font-size: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width: 30%; position: absolute; top: 45%; left: 50%; transform: translateX(-50%)translateY(-50%);">
+        <p style="text-align: center;">
+            <a onclick="goback()" style="cursor: pointer;">返回上一页</a>
+            <span>|</span>
+            <a href="/">返回首页</a>
+        </p>
+        <img src="/static/images/error.png" style="width: 100%">
+        <p style="text-align: center;font-size: 20px;color: #8a8a8a;">哎呀！服务器云游啦！</p>
+        <div class="error">{{status_code}}</div>
+    </div>
+    <script>
+        function goback() {
+            window.history.go(-1);
+        }
+    </script>
+
+</body>
+
+</html>

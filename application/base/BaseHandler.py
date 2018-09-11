@@ -8,6 +8,8 @@ from utils.session import Session
 
 
 class BaseHandler(RequestHandler):
+    def get(self):
+        self.send_error(404)
     """
     自定义请求句柄基类
     """
@@ -24,6 +26,9 @@ class BaseHandler(RequestHandler):
             self.json_args = json.loads(self.request.body)
         else:
             self.json_args = {}
+
+    def write_error(self, status_code, **kwargs):
+        self.render('error.html', status_code = status_code)
 
     def set_default_headers(self):
         """
