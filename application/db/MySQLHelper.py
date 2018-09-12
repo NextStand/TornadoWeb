@@ -32,7 +32,7 @@ class MySQLHelper(object):
         return cls.__instance
 
     def __del__(self):
-        ''' 析构函数'''
+        ''' 析构'''
         yield self.pool.close()
 
     @gen.coroutine
@@ -171,9 +171,14 @@ class MySQLHelper(object):
                 with conn.cursor(cursor_cls=DictCursor) as cursor:
                     yield cursor.callproc(procname, args)
                     ret = cursor.fetchall()
+                    # nextset一定要调用，鬼知道我在这儿经历了什么
+                    cursor.nextset()
             except Exception as e:
                 logging.error("callproc error:---%s\n %s" % (procname, e.args))
                 yield conn.rollback()
             else:
                 yield conn.commit()
             raise gen.Return(ret)
+
+
+db = MySQLHelper()
