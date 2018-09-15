@@ -18,6 +18,7 @@ class MySQLHelper(object):
     __instance = None
 
     def __init__(self):
+        super(MySQLHelper, self).__init__()
         self.pool = tormysql.ConnectionPool(
             max_connections=150,
             idle_seconds=7200,
