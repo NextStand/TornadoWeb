@@ -40,7 +40,7 @@ class Session(object):
         """
         json_data = json.dumps(self.data)
         try:
-            request_handler.set_secure_cookie(
+            self._request_handler.set_secure_cookie(
                 "_BSSID", self.session_id, expires_days=SESSION_EXPIRES_SECONDS/(3600*24))
             self._request_handler.redis.setex(
                 'ssid_%s' % self.session_id, SESSION_EXPIRES_SECONDS + REQUEST_TIMEOUT, json_data)
