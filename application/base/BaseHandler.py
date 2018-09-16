@@ -5,6 +5,7 @@ import json
 
 from tornado.web import RequestHandler, StaticFileHandler
 from utils.session import Session
+from utils.decorator import checktoken
 
 
 class BaseHandler(RequestHandler):
@@ -20,7 +21,11 @@ class BaseHandler(RequestHandler):
         """
         return self.application.redis
 
+    @checktoken
     def prepare(self):
+        """
+        请求预处理
+        """
         self.xsrf_token
         if self.request.headers.get("Content-Type", "").startswith("application/json"):
             self.json_args = json.loads(self.request.body)
@@ -28,7 +33,7 @@ class BaseHandler(RequestHandler):
             self.json_args = {}
 
     def write_error(self, status_code, **kwargs):
-        self.render('error.html', status_code = status_code)
+        self.render('error.html', status_code=status_code)
 
     def set_default_headers(self):
         """
