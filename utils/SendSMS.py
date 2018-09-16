@@ -75,7 +75,6 @@ class SendSMS(object):
         bodys = dict(to=to, appId=self.__AppID, datas=datas, templateId=tempId)
         url, headers = self.__mkurl()
         http = tornado.httpclient.AsyncHTTPClient()
-        print(123)
         HttpRequest = tornado.httpclient.HTTPRequest(
             url=url,
             method='POST',
