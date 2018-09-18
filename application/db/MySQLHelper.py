@@ -3,9 +3,8 @@ __author__ = 'BLUE'
 __time__ = '2018-09-10T01:24:56.709Z'
 
 import logging
-import config
 import tormysql
-
+import config
 from tormysql import DictCursor
 from tornado import gen
 
