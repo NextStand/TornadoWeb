@@ -1,8 +1,9 @@
 # coding:utf-8
+from tornado import gen
 from application.db.MySQLHelper import db
 
 
-class Daltest():
+class Daltest(object):
     @staticmethod
     def test():
-        return db.callproc('ins_area_proc',args=(1,22))
+        return db.fetchall('SELECT * FROM sys_menu')
