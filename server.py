@@ -12,7 +12,7 @@ from tornado.options import define, options
 from urls_web import urls_web
 from urls_admin import urls_admin
 
-define("port", default=8000, type=int, help="run server on the given port")
+define("port", default=3000, type=int, help="run server on the given port")
 
 
 class Application(tornado.web.Application):
@@ -28,7 +28,6 @@ def main():
     # options.logging = config.log_level
     options.parse_command_line()
     urls_web.extend(urls_admin)
-    urls_web.extend(config.static_file_handler)
     app = Application(
         urls_web,
         **config.settings
