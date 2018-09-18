@@ -11,7 +11,11 @@ import logging
 import time
 import hashlib
 import re
+from config import database_options
 from constants import REQUEST_TIMEOUT
+from application.db.MySQLHelper import db
+from tornado import gen
+from utils.session import Session
 
 
 def require_login(fun):
@@ -46,15 +50,15 @@ def checktoken(fun):
             client_authtoken = RequestHandler.get_argument(
                 '_authtoken', default=None)
             if not all((client_timestamp, client_authtoken)):
-                return RequestHandler.send_error(400)
+                return RequestHandler.send_error(400, msg='服务器拒绝了你，原因：请求参数无效')
             server_timestamp = int(time.time())
             try:
                 diff_timestamp = server_timestamp-int(client_timestamp)
             except Exception as e:
-                return RequestHandler.send_error(403)
+                return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：请求参数无效')
             else:
-                if diff_timestamp > REQUEST_TIMEOUT or diff_timestamp < 0:
-                    return RequestHandler.send_error(403)
+                if diff_timestamp > 1000 or diff_timestamp < 0:
+                    return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：请求超时')
             # 为每个用户颁发的唯一id
             Authorization = None
             # 用户身份id
@@ -84,18 +88,49 @@ def checktoken(fun):
             m = hashlib.md5()
             m.update(decode_authtoken.encode('utf8'))
             encode_authtoken = m.hexdigest().upper()
-            # 验证token
+            # 验证身份token
             if encode_authtoken == client_authtoken:
                 fun(RequestHandler, *args, **kwargs)
             else:
-                return RequestHandler.send_error(403)
+                return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：身份令牌验证失败')
     return wrapper
 
 
 def api_authority(fun):
-
+    @gen.coroutine
     def wrapper(RequestHandler, *args, **kwargs):
-        print re.match(r'^/dbopt/(?P<tb>\w+)$',RequestHandler.request.uri)
-        return RequestHandler.send_error(403)
-        fun(RequestHandler, *args, **kwargs)
+        # 首选缓存中获取用户信息，没有的按照游客角色id“000000”处理
+        roleid = '000000'
+        session_data = Session(RequestHandler).data
+        if session_data:
+            roleid = session_data.get('roleid') if session_data.get('roleid') else '000000'
+        # 获取角色的接口
+        roleapi = RequestHandler.redis.hget('roleapi_cache', roleid)
+        if not roleapi:
+            sql = 'SELECT (SELECT sa_uri FROM sys_api WHERE a.ra_apiid = sa_id) AS ra_uri, ra_get,ra_post,ra_put,ra_delete FROM sys_roleapi AS a WHERE ra_roleid=%s'
+            ret = yield db.fetchall(sql, args=(roleid,))
+            ret = json.dumps(ret)
+            RequestHandler.redis.hset('roleapi_cache', roleid, ret)
+            roleapi = ret
+        # 接口权限
+        roleapi = json.loads(roleapi)
+        request_uri = RequestHandler.request.uri.split('?')[0]
+        accordapi = None
+        for api in roleapi:
+            if re.match(r'^%s$' % api.get('ra_uri'), request_uri):
+                accordapi = api
+                break
+        # 接口请求方式权限
+        if accordapi:
+            request_method = 'ra_%s' % RequestHandler.request.method.lower()
+            rm_power = accordapi.get(request_method, 0)
+            if str(rm_power) == '1':
+                fun(RequestHandler, *args, **kwargs)
+            else:
+                RequestHandler.send_error(
+                    403, msg='服务器拒绝了你，原因：%s无权访问或登录过期' % (RequestHandler.request.method))
+                raise gen.Return()
+        else:
+            RequestHandler.send_error(403, msg='服务器拒绝了你，原因：无权访问或登录过期')
+            raise gen.Return()
     return wrapper
