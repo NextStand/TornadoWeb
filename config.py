@@ -1,41 +1,35 @@
 # coding:utf-8
 __author__ = 'BLUE'
 import os
-from application.base.BaseHandler import StaticFileBaseHandler
-
-# Application配置参数
+# from application.base.BaseHandler import StaticFileBaseHandler
+# Application config
 settings = dict(
     static_path=os.path.join(os.path.dirname(__file__), "static"),
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
     cookie_secret="FhLXI+BRRomtuaG47hoXEg3JCdi0BUi8vrpWmoxaoyI=",
     xsrf_cookies=True,
-    debug=True
+    debug=True,
+    login_url='/login'
 )
 
 
-# 数据库配置参数
+# Database configuration parameters
 database_options = dict(
-    host="192.168.199.125",
-    db="ihome",
+    host="192.168.0.175",
+    db="db_tornado",
     user="root",
     password="hanmo"
 )
 
-# Redis配置参数
+# Redis config
 redis_options = dict(
-    host="192.168.199.125",
+    host="192.168.0.175",
     port=6379
 )
 
-# 日志配置
+# logs config
 log_path = os.path.join(os.path.dirname(__file__), "logs/log")
 log_level = "debug"
 
-# 密码加密密钥
-passwd_hash_key = "nlgCjaTXQX2jpupQFQLoQo5N4OkEmkeHsHD9+BBx2WQ="
-
-# 静态文件处理句柄
-static_file_handler = [
-    (r"/upload/(.*)", StaticFileBaseHandler,
-     dict(path=os.path.join(os.path.dirname(__file__), "upload")))
-]
+# Cipher encryption key
+passwd_hash_key = "BLUE"
