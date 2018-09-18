@@ -10,7 +10,7 @@ from utils.decorator import checktoken
 
 class BaseHandler(RequestHandler):
     def get(self):
-        self.send_error(404)
+        self.send_error(404,msg='这是哪儿，我走丢了')
     """
     自定义请求句柄基类
     """
@@ -32,8 +32,8 @@ class BaseHandler(RequestHandler):
         else:
             self.json_args = {}
 
-    def write_error(self, status_code, **kwargs):
-        self.render('error.html', status_code=status_code)
+    def write_error(self, status_code, msg='我犯错了', ** kwargs):
+        self.render('error.html', status_code=status_code, msg=msg)
 
     def set_default_headers(self):
         """
