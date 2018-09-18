@@ -8,24 +8,63 @@ Generally do not modify unless you need it very much.
 """
 import os
 import json
+import hashlib
+import config
+import uuid
 
 from application.base.BaseHandler import BaseHandler
+from tornado import gen
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 from utils.session import Session
+from constants import SESSION_EXPIRES_SECONDS
+from application.dal.SysDal import SysDal
 
 
 class LoginHandler(BaseHandler):
     def get(self):
+        # 写回一个加密key
         self.render('login.html')
 
+    @gen.coroutine
     def post(self):
         next = self.get_argument("next", "/")
+        username = self.get_argument('username')
+        password = self.get_argument('password')
+        if all((username, password)):
+            m = hashlib.md5()
+            password = '%s%s' % (password, config.passwd_hash_key)
+            m.update(password.encode('utf8'))
+            password = m.hexdigest().upper()
+            ret = yield SysDal.login(username, password)
+            if ret:
+                # 登录成功
+                session = Session(self)
+                authorization = uuid.uuid4().hex
+                session.data['authorization'] = authorization
+                session.data['uid'] = ret.get('u_uid')
+                session.data['username'] = ret.get('u_username')
+                session.data['roleid'] = ret.get(
+                    'u_roleid') if ret.get('u_roleid') else '000000'
+                session.save()
+                self.set_cookie('_BUUID', ret.get('u_uid'),
+                                expires_days=SESSION_EXPIRES_SECONDS/(3600*24))
+                self.set_cookie('_BAUTH', authorization,
+                                expires_days=SESSION_EXPIRES_SECONDS/(3600*24))
+                self.write('hello')
+                # self.redirect(next)
+            else:
+                # 登录失败
+                pass
+        else:
+            pass
         # Login logic is placed here
-        self.redirect(next)
 
 
 class UploadImageHandler(BaseHandler):
+    """
+    图片上传 图片文件name=image
+    """
     executor = ThreadPoolExecutor(10)
 
     @run_on_executor
