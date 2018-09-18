@@ -5,5 +5,5 @@ from application.handlers import SysHandlers
 urls_web = [
     (r'/', MainHandler.IndexHandler),
     (r'/upload', SysHandlers.UploadImageHandler),
-    (r'/login', SysHandlers.LoginHandler),
+    (r'^/login$', SysHandlers.LoginHandler),
 ]
