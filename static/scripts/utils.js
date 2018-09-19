@@ -2,7 +2,6 @@
  * @author:BLUE
  * @version:1.0
  * @license:ISC
- * @
  * @time:2018-9-19
  */
 (function (window, document, $) {
