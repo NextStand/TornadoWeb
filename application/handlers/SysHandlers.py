@@ -39,7 +39,7 @@ class LoginHandler(BaseHandler):
             ret = yield SysDal.login(username, password)
             if ret:
                 # 登录成功
-                session = Session(self)
+                session = Session(self, sessionid=ret.get('u_uid'))
                 authorization = uuid.uuid4().hex
                 session.data['authorization'] = authorization
                 session.data['uid'] = ret.get('u_uid')
