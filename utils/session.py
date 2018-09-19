@@ -13,12 +13,15 @@ class Session(object):
     session处理类，redis用于数据存储 
     """
 
-    def __init__(self, request_handler):
+    def __init__(self, request_handler, sessionid=None):
         """ 
         :param request_handler:tornado.web.RequestHandler 请求句柄
+        :param sessionid:str 自定义sessionid
         """
         self._request_handler = request_handler
         self.session_id = request_handler.get_secure_cookie('_BSSID')
+        if sessionid:
+            self.session_id = sessionid
         if not self.session_id:
             self.session_id = uuid.uuid4().hex
             self.data = {}
