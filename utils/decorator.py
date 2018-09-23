@@ -81,7 +81,7 @@ def checktoken(fun):
                 if k not in('_timestamp', '_authtoken'):
                     client_args[k] = v[-1]
             value_secert = ''.join([str(client_args[k])
-                                    for k in sorted(client_args.keys())])
+                                    for k in sorted(client_args.keys(), key=len)])
             decode_authtoken = '%s%s%s%s' % (
                 Authorization, Uid, client_timestamp, value_secert)
             # MD5
@@ -103,7 +103,8 @@ def api_authority(fun):
         roleid = '000000'
         session_data = Session(RequestHandler).data
         if session_data:
-            roleid = session_data.get('roleid') if session_data.get('roleid') else '000000'
+            roleid = session_data.get('roleid') if session_data.get(
+                'roleid') else '000000'
         # 获取角色的接口
         roleapi = RequestHandler.redis.hget('roleapi_cache', roleid)
         if not roleapi:
