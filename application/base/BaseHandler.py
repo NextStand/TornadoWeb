@@ -9,8 +9,12 @@ from utils.decorator import checktoken
 
 
 class BaseHandler(RequestHandler):
+    @property
+    def args(self):
+        return self.__cargs
+
     def get(self):
-        self.send_error(404,msg='这是哪儿，我走丢了')
+        self.send_error(404, msg='这是哪儿，我走丢了')
     """
     自定义请求句柄基类
     """
@@ -22,10 +26,11 @@ class BaseHandler(RequestHandler):
         return self.application.redis
 
     @checktoken
-    def prepare(self):
+    def prepare(self, cargs):
         """
         请求预处理
         """
+        self.__cargs = cargs  # 客户端参数，只读属性，dict
         self.xsrf_token
         if self.request.headers.get("Content-Type", "").startswith("application/json"):
             self.json_args = json.loads(self.request.body)
