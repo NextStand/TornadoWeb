@@ -262,18 +262,23 @@
             return Array(a, b, c, d);
 
         }
+
         function md5_cmn(q, a, b, x, s, t) {
             return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s), b);
         }
+
         function md5_ff(a, b, c, d, x, s, t) {
             return md5_cmn((b & c) | ((~b) & d), a, b, x, s, t);
         }
+
         function md5_gg(a, b, c, d, x, s, t) {
             return md5_cmn((b & d) | (c & (~d)), a, b, x, s, t);
         }
+
         function md5_hh(a, b, c, d, x, s, t) {
             return md5_cmn(b ^ c ^ d, a, b, x, s, t);
         }
+
         function md5_ii(a, b, c, d, x, s, t) {
             return md5_cmn(c ^ (b | (~d)), a, b, x, s, t);
         }
@@ -284,7 +289,8 @@
             var bkey = str2binl(key);
             if (bkey.length > 16) bkey = core_md5(bkey, key.length * chrsz);
 
-            var ipad = Array(16), opad = Array(16);
+            var ipad = Array(16),
+                opad = Array(16);
             for (var i = 0; i < 16; i++) {
                 ipad[i] = bkey[i] ^ 0x36363636;
                 opad[i] = bkey[i] ^ 0x5C5C5C5C;
@@ -352,9 +358,9 @@
             var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
             var str = "";
             for (var i = 0; i < binarray.length * 4; i += 3) {
-                var triplet = (((binarray[i >> 2] >> 8 * (i % 4)) & 0xFF) << 16)
-                    | (((binarray[i + 1 >> 2] >> 8 * ((i + 1) % 4)) & 0xFF) << 8)
-                    | ((binarray[i + 2 >> 2] >> 8 * ((i + 2) % 4)) & 0xFF);
+                var triplet = (((binarray[i >> 2] >> 8 * (i % 4)) & 0xFF) << 16) |
+                    (((binarray[i + 1 >> 2] >> 8 * ((i + 1) % 4)) & 0xFF) << 8) |
+                    ((binarray[i + 2 >> 2] >> 8 * ((i + 2) % 4)) & 0xFF);
                 for (var j = 0; j < 4; j++) {
                     if (i * 8 + j * 6 > binarray.length * 32) str += b64pad;
                     else str += tab.charAt((triplet >> 6 * (3 - j)) & 0x3F);
@@ -379,342 +385,341 @@
 
 
     ///////////////////////////////////以下为工具函数封装/////////////////////////
-    window.utils = {
-        /*-----------------------------数组操作开始----------------------------*/
-        bArray: {
-            /**
-             * 对数组每个元素自定义操作
-             * @param {Array} arr 预处理数组
-             * @param {Function} fn 对每个数据处理的函数
-             * @returns {Array}
-             */
-            each: function (arr, fn) {
-                fn = fn || Function;
-                var a = [];
-                var args = Array.prototype.slice.call(arguments, 1);
-                for (var i = 0; i < arr.length; i++) {
-                    var res = fn.apply(arr, [arr[i], i].concat(args));
-                    if (res != null) a.push(res);
-                }
-                return a;
-            },
-            /**
-             * 和原生的map方法一样的用法
-             */
-            map: function (arr, fun, obj) {
-                var scope = obj || window;
-                var a = [];
-                for (var i = 0, j = arr.length; i < j; ++i) {
-                    var res = fn.call(scope, arr[i], i, this);
-                    if (res != null) a.push(res);
-                }
-                return a;
-            },
-            /**
-             * 数组排序
-             * @param {Array} array 
-             * @param {String} flag 排序方式 asc-正序 desc-倒序 default asc
-             * @returns {Array}
-             */
-            orderBy: function (array, sortFlag) {
-                var $arr = array;
-                if (sortFlag == 'asc') {
-                    $arr.sort(this._numAscSort);
-                } else if (sortFlag == 'desc') {
-                    $arr.sort(this._numDescSort);
-                } else {
-                    $arr.sort(this._numAscSort);
-                }
-                return $arr;
-            },
-            /**
-             * 求两个数组的并集
-             * @param {Array} a
-             * @param {Array} b
-             * @returns {Array}
-             */
-            union: function (a, b) {
-                var newArr = a.concat(b);
-                return this.unique2(newArr);
-            },
-            /**
-             * 求两个数组的补集
-             * @param {Array} a
-             * @param {Array} b
-             * @returns {Array}
-             */
-            complement: function (a, b) {
-                return this.minus(this.union(a, b), this.intersect(a, b));
-            },
-            /**
-             * 求两个数组的交集
-             * @param {Array} a
-             * @param {Array} b
-             * @returns {Array} 
-             */
-            intersect: function (a, b) {
-                a = this.unique(a);
-                return this.each(a, function (o) {
-                    return b.contains(o) ? o : null;
-                });
-            },
-            /**
-             * 求两个数组的差集
-             * @param {Array} a
-             * @param {Array} b
-             * @returns {Array} 
-             */
-            minus: function (a, b) {
-                a = this.unique(a);
-                return this.each(a, function (o) {
-                    return b.contains(o) ? null : o;
-                });
-            },
-            /**
-             * 数组去重,返回新数组
-             * @param {Array} arr
-             * @returns {Array}
-             */
-            unique: function (arr) {
-                var ra = new Array();
-                for (var i = 0; i < arr.length; i++) {
-                    if (!ra.contains(arr[i])) {
-                        //if(this.contains(ra,arr[i])){
-                        ra.push(arr[i]);
-                    }
-                }
-                return ra;
-            },
-            /**
-             * 数组去重,原数组操作
-             * @param arr
-             * @returns {Object}
-             */
-            unique2: function (arr) {
-                for (var i = 0; i < arr.length; i++) {
-                    for (var j = i + 1; j < arr.length;) {
-                        if (arr[j] == arr[i]) {
-                            arr.splice(j, 1);
-                        } else {
-                            j++;
-                        }
-                    }
-                }
-                return arr;
-            },
-            /**
-             * 数组去重,返回新数组,不同算法
-             * @param {Array} arr
-             * @returns {Array}
-             */
-            unique3: function (arr) {
-                var result = [],
-                    hash = {};
-                for (var i = 0, elem;
-                    (elem = arr[i]) != null; i++) {
-                    if (!hash[elem]) {
-                        result.push(elem);
-                        hash[elem] = true;
-                    }
-                }
-                return result;
-            },
-            /**
-             * 获取元素数组的下标
-             * @param {Array} arr
-             * @param {Object} val
-             * @returns {Number}
-             */
-            indexOf: function (arr, val) {
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i] == val) {
-                        return i;
-                    }
-                }
-                return -1;
-            },
-            /**
-             * 判断一个元素是否在一个数组中
-             * @param {Array} arr
-             * @param {Object} val
-             * @returns {boolean}
-             */
-            contains: function (arr, val) {
-                return this.indexOf(arr, val) != -1 ? true : false;
-            },
-            /**
-             * 根据索引删除数组元素
-             * @param {Array} arr
-             * @param {Number} indexs
-             * @returns {Array}
-             */
-            remove: function (arr, indexs) {
-                var index = this.indexOf(arr, indexs);
-                if (index > -1) {
-                    arr.splice(index, 1);
-                }
-                return arr;
-            },
-            /**
-             * 删除数组元素
-             * @param {Array} arr
-             * @param {Object} val
-             */
-            removeAry: function (arr, val) {
-                arr.splice(arr.indexOf(val), 1);
-            },
-            /**
-             * 根据值删除json
-             * @param {Array} arr
-             * @param {Object} item
-             * @returns {Array}
-             */
-            removeObject: function (arr, item) {
-                for (var i = 0; i < arr.length; i++) {
-                    var jsonData = arr[i];
-                    for (var key in jsonData) {
-                        if (jsonData[key] == item) {
-                            arr.splice(i, 1);
-                        }
-                    }
-                }
-                return arr;
-            },
-            /**
-             * 求数组最大值
-             * @param {Array} arr
-             * @returns {Number}
-             */
-            arrMax: function (arr) {
-                return Math.max.apply(null, arr);
-            },
-            /**
-             * 求数组最小值
-             * @param {Array} arr
-             * @returns {Number}
-             */
-            arrMax: function (arr) {
-                return Math.min.apply(null, arr);
-            },
-            /**
-             * 将类数组转换为数组的方法
-             * @param {likeArray} ary
-             * @returns {Array}
-             */
-            formArray: function (ary) {
-                var arr = [];
-                if (Array.isArray(ary)) {
-                    arr = ary;
-                } else {
-                    arr = Array.prototype.slice.call(ary);
-                };
-                return arr;
-            },
-            /**
-             * 定义一个数组排序的方法
-             * 默认为升序排序asc,
-             * 如果传递是参数是一个的话，那么就是是升序，如果传递的参数是两个的话，如果第一个参数不能转换为数组的话，也直接退出
-             * 参数:acs:表示升序
-             * 参数:desc:表示降序
-             * @returns {Object}
-             */
-            arrySort: function () {
-                var arg = arguments;
-                var len = arg.length;
-                var ary = this.arryList(arg[0]);
-                //如果没传递参数，或者传递的不能转换为数组的话就直接返回
-                if (!len || Array.isArray(ary) == false) {
-                    return false;
-                };
-                if (len == 1) {
-                    return ary.sort(function (a, b) {
-                        return a - b;
-                    });
-                } else {
-                    return ary.sort(function (a, b) {
-                        if (arg[1] == "desc") {
-                            return b - a;
-                        } else if (arg[1] == "asc") {
-                            return a - b;
-                        } else {
-                            return a - b;
-                        };
-                    });
-                };
-            },
-            /**
-             * 数组求和
-             * @param {Array} arr
-             * @returns {number}
-             */
-            arrSum: function (arr) {
-                var ary = [];
-                var result = 0;
-                if (arr instanceof Array) {
-                    ary = arr;
-                } else {
-                    ary = this.formArray(arr);
-                };
-                for (var i = 0; i < ary.length; i++) {
-                    result += parseFloat(ary[i]);
-                };
-                return result;
-            },
-            /**
-             * 数组判断
-             * @param {Object} arr
-             * @returns {Boolean}
-             */
-            isArray: function (arr) {
-                return Object.prototype.toString.call(arr) === '[object Array]';
-            },
-            /**
-             * 随机返回数组中一个元素
-             * @param {Array} ary
-             * @returns {Object}
-             */
-            randomItem: function (ary) {
-                return ary[Math.ceil(Math.random() * ary.length)];
-            },
-            /**
-             * 判断数组是否有重复的项
-             * @param {Array} arr
-             * @returns {Boolean}
-             */
-            isRepeat: function (arr) { //arr是否有重复元素
-                var hash = {};
-                for (var i in arr) {
-                    if (hash[arr[i]]) return true;
-                    hash[arr[i]] = true;
-                }
-                return false;
-            },
-            /*--------------以下为数组操作私有方法------------------*/
-            _numAscSort: function (a, b) {
-                return a - b;
-            },
-            _numDescSort: function (a, b) {
-                return b - a;
-            },
-            _sortAsc: function (x, y) {
-                if (x > y) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            },
-            _sortDesc: function (x, y) {
-                if (x > y) {
-                    return -1;
-                } else {
-                    return 1;
+    /*-----------------------------数组操作开始----------------------------*/
+    window.barray = {
+        /**
+         * 对数组每个元素自定义操作
+         * @param {Array} arr 预处理数组
+         * @param {Function} fn 对每个数据处理的函数
+         * @returns {Array}
+         */
+        each: function (arr, fn) {
+            fn = fn || Function;
+            var a = [];
+            var args = Array.prototype.slice.call(arguments, 1);
+            for (var i = 0; i < arr.length; i++) {
+                var res = fn.apply(arr, [arr[i], i].concat(args));
+                if (res != null) a.push(res);
+            }
+            return a;
+        },
+        /**
+         * 和原生的map方法一样的用法
+         */
+        map: function (arr, fun, obj) {
+            var scope = obj || window;
+            var a = [];
+            for (var i = 0, j = arr.length; i < j; ++i) {
+                var res = fn.call(scope, arr[i], i, this);
+                if (res != null) a.push(res);
+            }
+            return a;
+        },
+        /**
+         * 数组排序
+         * @param {Array} array 
+         * @param {String} flag 排序方式 asc-正序 desc-倒序 default asc
+         * @returns {Array}
+         */
+        orderBy: function (array, sortFlag) {
+            var $arr = array;
+            if (sortFlag == 'asc') {
+                $arr.sort(this._numAscSort);
+            } else if (sortFlag == 'desc') {
+                $arr.sort(this._numDescSort);
+            } else {
+                $arr.sort(this._numAscSort);
+            }
+            return $arr;
+        },
+        /**
+         * 求两个数组的并集
+         * @param {Array} a
+         * @param {Array} b
+         * @returns {Array}
+         */
+        union: function (a, b) {
+            var newArr = a.concat(b);
+            return this.unique2(newArr);
+        },
+        /**
+         * 求两个数组的补集
+         * @param {Array} a
+         * @param {Array} b
+         * @returns {Array}
+         */
+        complement: function (a, b) {
+            return this.minus(this.union(a, b), this.intersect(a, b));
+        },
+        /**
+         * 求两个数组的交集
+         * @param {Array} a
+         * @param {Array} b
+         * @returns {Array} 
+         */
+        intersect: function (a, b) {
+            a = this.unique(a);
+            return this.each(a, function (o) {
+                return b.contains(o) ? o : null;
+            });
+        },
+        /**
+         * 求两个数组的差集
+         * @param {Array} a
+         * @param {Array} b
+         * @returns {Array} 
+         */
+        minus: function (a, b) {
+            a = this.unique(a);
+            return this.each(a, function (o) {
+                return b.contains(o) ? null : o;
+            });
+        },
+        /**
+         * 数组去重,返回新数组
+         * @param {Array} arr
+         * @returns {Array}
+         */
+        unique: function (arr) {
+            var ra = new Array();
+            for (var i = 0; i < arr.length; i++) {
+                if (!ra.contains(arr[i])) {
+                    //if(this.contains(ra,arr[i])){
+                    ra.push(arr[i]);
                 }
             }
+            return ra;
         },
+        /**
+         * 数组去重,原数组操作
+         * @param arr
+         * @returns {Object}
+         */
+        unique2: function (arr) {
+            for (var i = 0; i < arr.length; i++) {
+                for (var j = i + 1; j < arr.length;) {
+                    if (arr[j] == arr[i]) {
+                        arr.splice(j, 1);
+                    } else {
+                        j++;
+                    }
+                }
+            }
+            return arr;
+        },
+        /**
+         * 数组去重,返回新数组,不同算法
+         * @param {Array} arr
+         * @returns {Array}
+         */
+        unique3: function (arr) {
+            var result = [],
+                hash = {};
+            for (var i = 0, elem;
+                (elem = arr[i]) != null; i++) {
+                if (!hash[elem]) {
+                    result.push(elem);
+                    hash[elem] = true;
+                }
+            }
+            return result;
+        },
+        /**
+         * 获取元素数组的下标
+         * @param {Array} arr
+         * @param {Object} val
+         * @returns {Number}
+         */
+        indexOf: function (arr, val) {
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] == val) {
+                    return i;
+                }
+            }
+            return -1;
+        },
+        /**
+         * 判断一个元素是否在一个数组中
+         * @param {Array} arr
+         * @param {Object} val
+         * @returns {boolean}
+         */
+        contains: function (arr, val) {
+            return this.indexOf(arr, val) != -1 ? true : false;
+        },
+        /**
+         * 根据索引删除数组元素
+         * @param {Array} arr
+         * @param {Number} indexs
+         * @returns {Array}
+         */
+        remove: function (arr, indexs) {
+            var index = this.indexOf(arr, indexs);
+            if (index > -1) {
+                arr.splice(index, 1);
+            }
+            return arr;
+        },
+        /**
+         * 删除数组元素
+         * @param {Array} arr
+         * @param {Object} val
+         */
+        removeAry: function (arr, val) {
+            arr.splice(arr.indexOf(val), 1);
+        },
+        /**
+         * 根据值删除json
+         * @param {Array} arr
+         * @param {Object} item
+         * @returns {Array}
+         */
+        removeObject: function (arr, item) {
+            for (var i = 0; i < arr.length; i++) {
+                var jsonData = arr[i];
+                for (var key in jsonData) {
+                    if (jsonData[key] == item) {
+                        arr.splice(i, 1);
+                    }
+                }
+            }
+            return arr;
+        },
+        /**
+         * 求数组最大值
+         * @param {Array} arr
+         * @returns {Number}
+         */
+        arrMax: function (arr) {
+            return Math.max.apply(null, arr);
+        },
+        /**
+         * 求数组最小值
+         * @param {Array} arr
+         * @returns {Number}
+         */
+        arrMax: function (arr) {
+            return Math.min.apply(null, arr);
+        },
+        /**
+         * 将类数组转换为数组的方法
+         * @param {likeArray} ary
+         * @returns {Array}
+         */
+        formArray: function (ary) {
+            var arr = [];
+            if (Array.isArray(ary)) {
+                arr = ary;
+            } else {
+                arr = Array.prototype.slice.call(ary);
+            };
+            return arr;
+        },
+        /**
+         * 定义一个数组排序的方法
+         * 默认为升序排序asc,
+         * 如果传递是参数是一个的话，那么就是是升序，如果传递的参数是两个的话，如果第一个参数不能转换为数组的话，也直接退出
+         * 参数:acs:表示升序
+         * 参数:desc:表示降序
+         * @returns {Object}
+         */
+        arrySort: function () {
+            var arg = arguments;
+            var len = arg.length;
+            var ary = this.arryList(arg[0]);
+            //如果没传递参数，或者传递的不能转换为数组的话就直接返回
+            if (!len || Array.isArray(ary) == false) {
+                return false;
+            };
+            if (len == 1) {
+                return ary.sort(function (a, b) {
+                    return a - b;
+                });
+            } else {
+                return ary.sort(function (a, b) {
+                    if (arg[1] == "desc") {
+                        return b - a;
+                    } else if (arg[1] == "asc") {
+                        return a - b;
+                    } else {
+                        return a - b;
+                    };
+                });
+            };
+        },
+        /**
+         * 数组求和
+         * @param {Array} arr
+         * @returns {number}
+         */
+        arrSum: function (arr) {
+            var ary = [];
+            var result = 0;
+            if (arr instanceof Array) {
+                ary = arr;
+            } else {
+                ary = this.formArray(arr);
+            };
+            for (var i = 0; i < ary.length; i++) {
+                result += parseFloat(ary[i]);
+            };
+            return result;
+        },
+        /**
+         * 数组判断
+         * @param {Object} arr
+         * @returns {Boolean}
+         */
+        isArray: function (arr) {
+            return Object.prototype.toString.call(arr) === '[object Array]';
+        },
+        /**
+         * 随机返回数组中一个元素
+         * @param {Array} ary
+         * @returns {Object}
+         */
+        randomItem: function (ary) {
+            return ary[Math.ceil(Math.random() * ary.length)];
+        },
+        /**
+         * 判断数组是否有重复的项
+         * @param {Array} arr
+         * @returns {Boolean}
+         */
+        isRepeat: function (arr) { //arr是否有重复元素
+            var hash = {};
+            for (var i in arr) {
+                if (hash[arr[i]]) return true;
+                hash[arr[i]] = true;
+            }
+            return false;
+        },
+        /*--------------以下为数组操作私有方法------------------*/
+        _numAscSort: function (a, b) {
+            return a - b;
+        },
+        _numDescSort: function (a, b) {
+            return b - a;
+        },
+        _sortAsc: function (x, y) {
+            if (x > y) {
+                return 1;
+            } else {
+                return -1;
+            }
+        },
+        _sortDesc: function (x, y) {
+            if (x > y) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+    },
         /*-----------------------------数组操作结束----------------------------*/
 
         /*-----------------------------日期操作开始----------------------------*/
-        bDate: {
+        window.bdate = {
             /**
              * 字符串转换成Date
              * @param {String} str
@@ -1582,7 +1587,7 @@
         /*-----------------------------日期操作结束----------------------------*/
 
         /*-----------------------------文件操作开始----------------------------*/
-        bFile: {
+        window.bfile = {
             /**
              * 文件大小转换为MB GB KB格式
              * @param {Number} size 
@@ -1693,7 +1698,7 @@
         /*-----------------------------文件操作结束----------------------------*/
 
         /*-----------------------------字符操作开始----------------------------*/
-        bStr: {
+        window.bstr = {
             /**
              * 本函数用于统计字符串的长度，有两种模式切换。
              * “En”英文主计算模式，将每个中文算作1个字符；“Ch”中文主计算模式，将每个中文算作2个字符长度
@@ -1746,8 +1751,8 @@
              * @param {any} strs1 判断对象
              * @param {string} def1 预填充字符
              */
-            isnull(strs1, def1) {
-                let isnil = false;
+            isnull: function (strs1, def1) {
+                var isnil = false;
                 if (strs1 == undefined || strs1 == null || strs1 == "undefined" || strs1 == "NaN" || strs1 == "Infinity" || strs1 == "&nbsp;" || strs1 == "&#160;" || strs1 == "BsonNull") {
                     strs1 = "";
                     isnil = true;
@@ -1755,12 +1760,52 @@
                 if (strs1 + "" == "" && def1 != undefined && def1 != "") strs1 = def1;
                 if (isnil && def1 === 0) strs1 = def1;
                 return strs1;
+            },
+            tostr: function (str) {
+                var str2 = this.isnull(str, "") + "";
+                if (str2 == "") return str2;
+                //str2.indexOf('~h%60') == 0 为了支持火狐;
+                if (str2.indexOf('~h`') == 0 || str2.indexOf('~h%60') == 0) {
+                    if (str2.indexOf('~h%60') == 0) str2 = str2.substr(5); else str2 = str2.substr(3);
+                    if (str2 != '') {
+                        let st, t, i, rs = [];
+                        st = '';
+                        for (i = 1; i <= str2.length / 4; i++) {
+                            rs[i * 3 - 3] = "%u";
+                            rs[i * 3 - 2] = str2.slice(4 * i - 2, 4 * i);
+                            rs[i * 3 - 1] = str2.slice(4 * i - 4, 4 * i - 2);
+                        };
+                        st = rs.join("");
+                        st = unescape(st);
+                        return (st);
+                    } else return ('');
+                } else return str2;
+            },
+            tohex: function (str1) {
+                var str = this.isnull(str1, "") + "";
+                if (str == "") return str;
+                if (str.indexOf('~h`') == 0) return str;
+                var t, i, tl = 0, t0 = "", rs = [], t1 = "";
+                for (i = 0; i < str.length; i++) {
+                    t = str.charCodeAt(i).toString(16);
+                    tl = t.length;
+                    switch (tl) {
+                        case 4: t0 = ""; break;
+                        case 2: t0 = "00"; break;
+                        case 1: t0 = "000"; break;
+                        case 3: t0 = "0"; break;
+                        default: t0 = "0000"; break;
+                    };
+                    t1 = t0 + t;
+                    rs[i] = t1.slice(2, 4) + t1.slice(0, 2);
+                }
+                return ('~h`' + rs.join(""));
             }
         },
         /*-----------------------------字符操作结束----------------------------*/
 
         /*-----------------------------数字操作开始----------------------------*/
-        bNum: {
+        window.bnum = {
             /**
              * 数字千分位分开
              * @param {Number|String} str
@@ -2076,7 +2121,7 @@
         /*-----------------------------数字操作结束----------------------------*/
 
         /*-----------------------------正则验证开始----------------------------*/
-        bReg: {
+        window.breg = {
             /**
              * 邮箱验证
              * @param {String} email
@@ -2123,19 +2168,19 @@
                 return reg.test(str);
             },
             /**
-            * 正整数验证
-            * @param {String|Number} str
-            * @returns {Boolean}
-            */
+             * 正整数验证
+             * @param {String|Number} str
+             * @returns {Boolean}
+             */
             positiveInt: function (str) {
                 var reg = /^[1-9]*[1-9][0-9]*$/;
                 return reg.test(str);
             },
             /**
-            * 整数(不限位数)验证
-            * @param {String|Number} str
-            * @returns {Boolean}
-            */
+             * 整数(不限位数)验证
+             * @param {String|Number} str
+             * @returns {Boolean}
+             */
             int: function (str) {
                 var reg = /^-?\d+$/;
                 return reg.test(str);
@@ -2180,7 +2225,7 @@
         /*-----------------------------正则验证结束----------------------------*/
 
         /*-----------------------------窗体操作开始----------------------------*/
-        bWin: {
+        window.bwin = {
             /**
              * 禁止窗体被选中
              */
@@ -2295,10 +2340,10 @@
                 }
             },
             /**
-              * 设置光标位置
-              * @param ctrl
-              * @returns {number}
-              */
+             * 设置光标位置
+             * @param ctrl
+             * @returns {number}
+             */
             setCursortPosition: function (ctrl) {
                 var CaretPos = 0; // IE Support
                 if (document.selection) {
@@ -2414,9 +2459,9 @@
                 window.location.href = window.location.href;
             },
             /**
-            * 获取浏览器url中的参数值
-            * @param {String} name
-            */
+             * 获取浏览器url中的参数值
+             * @param {String} name
+             */
             getURLParam: function (name) {
                 return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)', "ig").exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
             },
@@ -2590,7 +2635,7 @@
              * @param day cookie的过期时间
              */
             setCookie: function (name, value, day) {
-                if (day !== 0) {     //当设置的时间等于0时，不设置expires属性，cookie在浏览器关闭后删除
+                if (day !== 0) { //当设置的时间等于0时，不设置expires属性，cookie在浏览器关闭后删除
                     var expires = day * 24 * 60 * 60 * 1000;
                     var date = new Date(+new Date() + expires);
                     document.cookie = name + "=" + escape(value) + ";expires=" + date.toUTCString();
@@ -2620,81 +2665,156 @@
             },
         },
         /*-----------------------------窗体操作结束----------------------------*/
-    }
-    ///////////////////////////////////ajax封装开始/////////////////////////////
-    window.http = {
-        /**
-         * 根据Unicode号正向排序,别修改原参数对象
-         */
-        _orderParams: function () {
 
-        },
-        /**
-         * 参数预处理，将参数处理成对象
-         * @param {Object} params 参数，可能有两种形式  a=1&b=2 和{a:1,b:2} 
-         * @returns {Object}
-         */
-        _parse: function (params) {
+        ///////////////////////////////////ajax封装开始/////////////////////////////
+        window.http = {
             /**
-             * 每个结果参数对象添加   _timestamp 和 _authtoken
-             * _timestamp 整数时间戳s，不是毫秒
-             * _authtoken md5(authorization+uid+_timestamp+参数排序后的参数值拼接)转大写 
-             * authorization 每个客户端唯一授权码 cookie中取_BAUTH，取不到赋值为‘000000’，cookie取法在楼上窗体操作部分
-             * uid  用户id cookie中取_BUUID，取不到赋值为‘000000’
-             * md5加密算法在楼上
+             * 根据Unicode号正向排序,别修改原参数对象
+             * 根据key的字符长度正序排列
              */
+            _orderParams: function (params) {
+                var str = "",
+                    arr = [];
+                arr = Object.keys(params).sort();
+                for (var i = 0, len = arr.length; i < len; i++) {
+                    str += params[arr[i]];
+                }
+                return str;
+            },
             /**
-             * 生成的参数样子
-             * {
-             *  k1:v1,
-             *  k2:v2,
-             *  _timestamp:1537433367
-             *  _authtoken:72697333480112ACCFAF067736ABF5DE
-             * }
+             * 参数预处理，将参数处理成对象
+             * @param {Object} params 参数，可能有两种形式  a=1&b=2 和{a:1,b:2} 
+             * @returns {Object}
              */
-        },
+            _parse: function (params) {
+                /**
+                 * 每个结果参数对象添加   _timestamp 和 _authtoken
+                 * _timestamp 整数时间戳s，不是毫秒
+                 * _authtoken md5(authorization+uid+_timestamp+参数排序后的参数值拼接)转大写 
+                 * authorization 每个客户端唯一授权码 cookie中取_BAUTH，取不到赋值为‘000000’，cookie取法在楼上窗体操作部分
+                 * uid  用户id cookie中取_BUUID，取不到赋值为‘000000’
+                 * md5加密算法在楼上
+                 */
+                /**
+                 * 生成的参数样子
+                 * {
+                 *  k1:v1,
+                 *  k2:v2,
+                 *  _timestamp:1537433367
+                 *  _authtoken:72697333480112ACCFAF067736ABF5DE
+                 * }
+                 */
+                var obj = {};
+                if (typeof params === "string") {
+                    if (params.indexOf("=") > -1) {
+                        var arr = params.split("&");
+                        for (var i = 0, len = arr.length; i < len; i++) {
+                            var _arr = arr[i].split("=");
+                            obj[_arr[0]] = _arr[1];
+                        }
+                    } else {
+                        obj = {}
+                    }
+                } else if (typeof params === "object") {
+                    obj = params;
+                };
 
-        /**
-         * get请求用与于获取数据,dataType为json
-         * @param {String} api 接口
-         * @param {Object} params 参数对象
-         * @param {Function} callback1 成功的回调
-         * @param {Function} callback2 失败的回调
-         */
-        GET: function (api, params, callback1, callback2) {
+                if (typeof params === "object") {
+                    var _time = parseInt(new Date().getTime() / 1000);
+                    var _authtoken = hex_md5(
+                        (utils.bWin.getCookie("_BAUTH") ? utils.bWin.getCookie("_BAUTH") : "000000") +
+                        (utils.bWin.getCookie("_BUUID") ? utils.bWin.getCookie("_BUUID") : "000000") +
+                        (_time) + (this._orderParams(params))).toUpperCase();
+                    obj._timestamp = _time;
+                    obj._authtoken = _authtoken;
+                }
+                return obj;
+            },
 
-        },
-        /**
-         * POST请求用与于新增数据,dataType为json
-         * @param {String} api 接口
-         * @param {Object} params 参数对象
-         * @param {Function} callback1 成功的回调
-         * @param {Function} callback2 失败的回调
-         */
-        POST: function (api, params, callback1, callback2) {
-            //请求头中添加X-XSRFToken,值为cookie中的_xsrf，cookie取法在楼上窗体操作部分
-        },
-        /**
-         * DELETE请求用与于删除数据,dataType为json
-         * @param {String} api 接口
-         * @param {Object} params 参数对象
-         * @param {Function} callback1 成功的回调
-         * @param {Function} callback2 失败的回调
-         */
-        DELETE: function (api, params, callback1, callback2) {
-            //请求头中添加X-XSRFToken,值为cookie中的_xsrf，cookie取法在楼上窗体操作部分
-        },
-        /**
-         * get请求用与于修改数据,dataType为json
-         * @param {String} api 接口
-         * @param {Object} params 参数对象
-         * @param {Function} callback1 成功的回调
-         * @param {Function} callback2 失败的回调
-         */
-        PUT: function (api, params, callback1, callback2) {
-            //请求头中添加X-XSRFToken,值为cookie中的_xsrf，cookie取法在楼上窗体操作部分
-        },
-    }
+            /**
+             * get请求用与于获取数据,dataType为json
+             * @param {String} api 接口
+             * @param {Object} params 参数对象
+             * @param {Function} callback1 成功的回调
+             * @param {Function} callback2 失败的回调
+             */
+            GET: function (api, params, callback1, callback2) {
+                $.ajax({
+                    type: "GET",
+                    url: api,
+                    data: params,
+                    success: callback1 && callback1 instanceof Function && callback1(),
+                    error: callback2 && callback2 instanceof Function && callback1(),
+                })
+            },
+            /**
+             * POST请求用与于新增数据,dataType为json
+             * @param {String} api 接口
+             * @param {Object} params 参数对象
+             * @param {Function} callback1 成功的回调
+             * @param {Function} callback2 失败的回调
+             */
+            POST: function (api, params, callback1, callback2) {
+                //请求头中添加X-XSRFToken,值为cookie中的_xsrf，cookie取法在楼上窗体操作部分
+                var param = this._parse(params);
+                $.ajax({
+                    type: "POST",
+                    url: api,
+                    data: param,
+                    dataType: "json",
+                    beforeSend: function (XMLHttpRequest) {
+                        XMLHttpRequest.setRequestHeader("X-XSRFToken", utils.bWin.getCookie("_xsrf"));
+                    },
+                    success: callback1 && callback1 instanceof Function && callback1(),
+                    error: callback2 && callback2 instanceof Function && callback1(),
+                })
+            },
+            /**
+             * DELETE请求用与于删除数据,dataType为json
+             * @param {String} api 接口
+             * @param {Object} params 参数对象
+             * @param {Function} callback1 成功的回调
+             * @param {Function} callback2 失败的回调
+             */
+            DELETE: function (api, params, callback1, callback2) {
+                //请求头中添加X-XSRFToken,值为cookie中的_xsrf，cookie取法在楼上窗体操作部分
+                var param = this._parse(params);
+                $.ajax({
+                    type: "DELETE",
+                    url: api,
+                    data: param,
+                    dataType: "json",
+                    beforeSend: function (XMLHttpRequest) {
+                        XMLHttpRequest.setRequestHeader("X-XSRFToken", utils.bWin.getCookie("_xsrf"));
+                    },
+                    success: callback1 && callback1 instanceof Function && callback1(),
+                    error: callback2 && callback2 instanceof Function && callback1(),
+                })
+            },
+            /**
+             * get请求用与于修改数据,dataType为json
+             * @param {String} api 接口
+             * @param {Object} params 参数对象
+             * @param {Function} callback1 成功的回调
+             * @param {Function} callback2 失败的回调
+             */
+            PUT: function (api, params, callback1, callback2) {
+                //请求头中添加X-XSRFToken,值为cookie中的_xsrf，cookie取法在楼上窗体操作部分
+                var param = this._parse(params);
+                debugger;
+                $.ajax({
+                    type: "PUT",
+                    url: api,
+                    data: param,
+                    dataType: "json",
+                    beforeSend: function (XMLHttpRequest) {
+                        XMLHttpRequest.setRequestHeader("X-XSRFToken", utils.bWin.getCookie("_xsrf"));
+                    },
+                    success: callback1 && callback1 instanceof Function && callback1(),
+                    error: callback2 && callback2 instanceof Function && callback1(),
+                })
+            },
+        }
     ///////////////////////////////////ajax封装结束/////////////////////////////
 
 
@@ -2790,16 +2910,16 @@
         return Math.max.apply(null, this);
     };
     /**
-    * 获取数组中最小的值
-    * @returns {number}
-    */
+     * 获取数组中最小的值
+     * @returns {number}
+     */
     Array.prototype.min = function () {
         return Math.min.apply(null, this);
     };
     /**
-    * 过滤数组中重复的，如果是数组对象就传递一个参数进去
-    * dataSet.uniqueFn("id"),那么就是根据id过滤数组对象
-    **/
+     * 过滤数组中重复的，如果是数组对象就传递一个参数进去
+     * dataSet.uniqueFn("id"),那么就是根据id过滤数组对象
+     **/
     Array.prototype.unique = function (key) {
         var arr = this;
         var n = [arr[0]];
@@ -2835,24 +2955,25 @@
             rootId: 0
         }, attributes)
         if ((this instanceof Array) && this.length > 0) {
-            let resData = this,
+            var resData = this,
                 tree = [];
-            for (let i = 0; i < resData.length; i++) {
+            for (var i = 0; i < resData.length; i++) {
                 if (resData[i][attributes.pid] == attributes.rootId) {
                     resData[i]["children"] = new Array();
-                    let obj = resData[i];
+                    var obj = resData[i];
                     tree.push(obj);
                     resData.splice(i, 1);
                     i--;
                 }
             }
+
             function run(chiArr) {
                 if (resData.length !== 0) {
-                    for (let i = 0; i < chiArr.length; i++) {
-                        for (let j = 0; j < resData.length; j++) {
+                    for (var i = 0; i < chiArr.length; i++) {
+                        for (var j = 0; j < resData.length; j++) {
                             if (chiArr[i][attributes.id] === resData[j][attributes.pid]) {
                                 resData[j]["children"] = new Array()
-                                let obj = resData[j];
+                                var obj = resData[j];
                                 chiArr[i].children.push(obj);
                                 resData.splice(j, 1);
                                 j--;
