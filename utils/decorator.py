@@ -42,7 +42,11 @@ def checktoken(fun):
     def wrapper(RequestHandler, *args, **kwargs):
         # 验证接口权限>>>>>>
         if RequestHandler.request.method == 'GET':
-            fun(RequestHandler, *args, **kwargs)
+            client_args = {}
+            for k, v in RequestHandler.request.arguments.items():
+                if k not in('_timestamp', '_authtoken'):
+                    client_args[k] = v[-1].decode('utf-8')
+            fun(RequestHandler, client_args if client_args else None, *args, **kwargs)
         else:
             # 验证参数和时间戳
             client_timestamp = RequestHandler.get_argument(
@@ -50,14 +54,14 @@ def checktoken(fun):
             client_authtoken = RequestHandler.get_argument(
                 '_authtoken', default=None)
             if not all((client_timestamp, client_authtoken)):
-                return RequestHandler.send_error(400, msg='服务器拒绝了你，原因：请求参数无效')
+                return RequestHandler.send_error(400, msg='服务器拒绝了你，原因：Token缺失')
             server_timestamp = int(time.time())
             try:
                 diff_timestamp = server_timestamp-int(client_timestamp)
             except Exception as e:
                 return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：请求参数无效')
             else:
-                if diff_timestamp > 1000 or diff_timestamp < 0:
+                if diff_timestamp > REQUEST_TIMEOUT or diff_timestamp < 0:
                     return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：请求超时')
             # 为每个用户颁发的唯一id
             Authorization = None
@@ -79,9 +83,9 @@ def checktoken(fun):
             client_args = {}
             for k, v in RequestHandler.request.arguments.items():
                 if k not in('_timestamp', '_authtoken'):
-                    client_args[k] = v[-1]
+                    client_args[k] = v[-1].decode('utf-8')
             value_secert = ''.join([str(client_args[k])
-                                    for k in sorted(client_args.keys(), key=len)])
+                                    for k in sorted(client_args.keys())])
             decode_authtoken = '%s%s%s%s' % (
                 Authorization, Uid, client_timestamp, value_secert)
             # MD5
@@ -90,7 +94,7 @@ def checktoken(fun):
             encode_authtoken = m.hexdigest().upper()
             # 验证身份token
             if encode_authtoken == client_authtoken:
-                fun(RequestHandler, *args, **kwargs)
+                fun(RequestHandler, client_args if client_args else None, *args, **kwargs)
             else:
                 return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：身份令牌验证失败')
     return wrapper
