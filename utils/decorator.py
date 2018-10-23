@@ -15,6 +15,7 @@ from config import database_options
 from constants import REQUEST_TIMEOUT
 from application.db.MySQLHelper import db
 from tornado import gen
+from .comm_tools import tostr
 from utils.session import Session
 
 
@@ -45,7 +46,7 @@ def checktoken(fun):
             client_args = {}
             for k, v in RequestHandler.request.arguments.items():
                 if k not in('_timestamp', '_authtoken'):
-                    client_args[k] = v[-1].decode('utf-8')
+                    client_args[k] = tostr(v[-1])
             fun(RequestHandler, client_args if client_args else None, *args, **kwargs)
         else:
             # 验证参数和时间戳
@@ -83,7 +84,7 @@ def checktoken(fun):
             client_args = {}
             for k, v in RequestHandler.request.arguments.items():
                 if k not in('_timestamp', '_authtoken'):
-                    client_args[k] = v[-1].decode('utf-8')
+                    client_args[k] = tostr(v[-1])
             value_secert = ''.join([str(client_args[k])
                                     for k in sorted(client_args.keys())])
             decode_authtoken = '%s%s%s%s' % (
@@ -94,7 +95,8 @@ def checktoken(fun):
             encode_authtoken = m.hexdigest().upper()
             # 验证身份token
             if encode_authtoken == client_authtoken:
-                fun(RequestHandler, client_args if client_args else None, *args, **kwargs)
+                fun(RequestHandler, client_args if client_args else None,
+                    *args, **kwargs)
             else:
                 return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：身份令牌验证失败')
     return wrapper
