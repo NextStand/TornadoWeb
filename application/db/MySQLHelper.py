@@ -50,7 +50,7 @@ class MySQLHelper(object):
                     yield cursor.execute(sql, args)
                     data = cursor.fetchone()
             except Exception as e:
-                logging.error("fetchone error: %s" % e.args)
+                logging.error("fetchone error: %s" % e)
             else:
                 yield conn.commit()
             raise gen.Return(data)
@@ -71,7 +71,7 @@ class MySQLHelper(object):
                     yield cursor.execute(sql, args)
                     data = cursor.fetchmany(size)
             except Exception as e:
-                logging.error("fetchmany error: %s" % e.args)
+                logging.error("fetchmany error: %s" % e)
             else:
                 yield conn.commit()
             raise gen.Return(data)
@@ -91,7 +91,7 @@ class MySQLHelper(object):
                     yield cursor.execute(sql, args)
                     data = cursor.fetchall()
             except Exception as e:
-                logging.error("fetchall error: %s" % e.args)
+                logging.error("fetchall error: %s" % e)
             else:
                 yield conn.commit()
             raise gen.Return(data)
@@ -110,7 +110,7 @@ class MySQLHelper(object):
                 with conn.cursor(cursor_cls=DictCursor) as cursor:
                     ret = yield cursor.execute(sql, args)
             except Exception as e:
-                logging.error("execute error: %s" % e.args)
+                logging.error("execute error: %s" % e)
                 yield conn.rollback()
             else:
                 yield conn.commit()
@@ -130,7 +130,7 @@ class MySQLHelper(object):
                 with conn.cursor(cursor_cls=DictCursor) as cursor:
                     ret = yield cursor.executemany(sql, args)
             except Exception as e:
-                logging.error("executemany error: %s" % e.args)
+                logging.error("executemany error: %s" % e)
                 yield conn.rollback()
             else:
                 yield conn.commit()
@@ -151,7 +151,7 @@ class MySQLHelper(object):
                     yield cursor.execute(sql, args)
                     ret = cursor.lastrowid
             except Exception as e:
-                logging.error("addbackid error: %s" % e.args)
+                logging.error("addbackid error: %s" % e)
                 yield conn.rollback()
             else:
                 yield conn.commit()
@@ -174,7 +174,7 @@ class MySQLHelper(object):
                     # nextset一定要调用，鬼知道我在这儿经历了什么，儿豁你嘛
                     yield cursor.nextset()
             except Exception as e:
-                logging.error("callproc error:---%s\n %s" % (procname, e.args))
+                logging.error("callproc error:---%s\n %s" % (procname, e))
                 yield conn.rollback()
             else:
                 yield conn.commit()
