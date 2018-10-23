@@ -2677,7 +2677,7 @@
                     arr = [];
                 arr = Object.keys(params).sort();
                 for (var i = 0, len = arr.length; i < len; i++) {
-                    str += params[arr[i]];
+                    str += bstr.tostr(params[arr[i]]);
                 }
                 return str;
             },
