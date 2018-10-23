@@ -7,14 +7,15 @@ import tornado.options
 import tornado.httpserver
 import redis
 import config
+import sys
 
 from tornado.options import define, options
 from urls_web import urls_web
 from urls_admin import urls_admin
+reload(sys)
+sys.setdefaultencoding('utf8')
 
-define("port", default=3000, type=int, help="run server on the given port")
-
-
+define("port", default=8080, type=int, help="run server on the given port")
 class Application(tornado.web.Application):
     def __init__(self, *args, **kwargs):
         super(Application, self).__init__(*args, **kwargs)
