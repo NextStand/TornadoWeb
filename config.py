@@ -15,7 +15,7 @@ settings = dict(
 
 # Database configuration parameters
 database_options = dict(
-    host="192.168.0.175",
+    host="127.0.0.1",
     db="db_tornado",
     user="root",
     password="hanmo"
@@ -23,9 +23,20 @@ database_options = dict(
 
 # Redis config
 redis_options = dict(
-    host="192.168.0.175",
+    host="127.0.0.1",
     port=6379
 )
+
+# Email config
+email_options = dict(
+    smtpHost='smtp.163.com',    # smtp主机地址
+    smtpPort='25',  # smtp端口
+    sslPort='587',  # SSL连接端口，没有就不写
+    username='18215676683@163.com', # 邮箱用户名
+    password='helloworld123',   # 授权密码
+    identity='地名公众服务信息平台' #单位名称信息
+)
+
 
 # logs config
 log_path = os.path.join(os.path.dirname(__file__), "logs/log")
