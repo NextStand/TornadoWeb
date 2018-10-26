@@ -19,22 +19,22 @@ class RET:
     SERVERERR           = "4500"
     UNKOWNERR           = "4501"
 
-error_map = {
-    RET.OK                    : u"成功",
-    RET.DBERR                 : u"数据库查询错误",
-    RET.NODATA                : u"无数据",
-    RET.DATAEXIST             : u"数据已存在",
-    RET.DATAERR               : u"数据错误",
-    RET.SESSIONERR            : u"用户未登录",
-    RET.LOGINERR              : u"用户登录失败",
-    RET.PARAMERR              : u"参数错误",
-    RET.USERERR               : u"用户不存在或未激活",
-    RET.ROLEERR               : u"用户身份错误",
-    RET.PWDERR                : u"密码错误",
-    RET.REQERR                : u"非法请求或请求次数受限",
-    RET.IPERR                 : u"IP受限",
-    RET.THIRDERR              : u"第三方系统错误",
-    RET.IOERR                 : u"文件读写错误",
-    RET.SERVERERR             : u"内部错误",
-    RET.UNKOWNERR             : u"未知错误",
-}
+class RMS:
+    OK                    = "成功",
+    DBERR                 = "数据库查询错误",
+    NODATA                = "无数据",
+    DATAEXIST             = "数据已存在",
+    DATAERR               = "数据错误",
+    SESSIONERR            = "用户未登录",
+    LOGINERR              = "用户登录失败",
+    PARAMERR              = "参数错误",
+    USERERR               = "用户不存在或未激活",
+    ROLEERR               = "用户身份错误",
+    PWDERR                = "密码错误",
+    REQERR                = "非法请求或请求次数受限",
+    IPERR                 = "IP受限",
+    THIRDERR              = "第三方系统错误",
+    IOERR                 = "文件读写错误",
+    SERVERERR             = "内部错误",
+    UNKOWNERR             = "未知错误",
+
