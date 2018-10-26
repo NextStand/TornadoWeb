@@ -119,6 +119,20 @@ class Requestcmd(object):
             raise ValueError(':param setargs is not allowed to be empty.')
 
     @classmethod
+    @chkparams
+    def del4and(cls, table, conditions):
+        """ and条件删除 """
+        sql = 'delete from %s' % table
+        sql += ' where %s ' % cls.__dict2str_split(conditions, 'and')
+
+    @classmethod
+    @chkparams
+    def del4or(cls, table, conditions):
+        """ or条件删除 """
+        sql = 'delete from %s' % table
+        sql += ' where %s ' % cls.__dict2str_split(conditions, 'or')
+
+    @classmethod
     def __sltcmd_like(cls, table, conditions, order, page, symbol):
         sql = 'select * from %s' % table
         c1 = None
