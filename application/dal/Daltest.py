@@ -6,4 +6,12 @@ from application.db.MySQLHelper import db
 class Daltest(object):
     @staticmethod
     def test():
-        return db.fetchall('SELECT * FROM sys_menu')
+        aa = u'测试菜单'
+        print "select * from sys_menu where  sm_caption='%s'" % aa
+        return db.fetchall("select * from sys_menu where  sm_caption='%s'" % aa)
+
+    @staticmethod
+    @gen.coroutine
+    def tt():
+        yield gen.sleep(5)
+        raise gen.Return('hello')

@@ -2,10 +2,15 @@
 __author__ = 'BLUE'
 
 import json
+import os
+import uuid
 
 from tornado.web import RequestHandler, StaticFileHandler
 from utils.session import Session
 from utils.decorator import checktoken
+from utils.res_code import RET, RMS
+from utils.comm_tools import storage
+from concurrent.futures import ThreadPoolExecutor
 
 
 class BaseHandler(RequestHandler):
@@ -66,3 +71,18 @@ class StaticFileBaseHandler(StaticFileHandler):
     def __init__(self, *args, **kwargs):
         super(StaticFileBaseHandler, self).__init__(*args, **kwargs)
         self.xsrf_token
+
+
+class Xsrf(RequestHandler):
+    def get(self):
+        self.xsrf_token
+        self.write(dict(errcode=RET.OK, errmsg=RMS.OK))
+
+
+class Uploadpic(RequestHandler):
+    def get(self):
+        try:
+            token = storage()
+            self.write(dict(errcode=RET.OK, errmsg=RMS.OK, data=token))
+        except Exception as e:
+            self.write(dict(errcode=RET.THIRDERR, errmsg=u'token获取失败'))

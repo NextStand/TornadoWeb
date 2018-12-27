@@ -13,6 +13,7 @@ import hashlib
 import re
 from config import database_options
 from constants import REQUEST_TIMEOUT
+from utils.res_code import RET, RMS
 from application.db.MySQLHelper import db
 from tornado import gen
 from .comm_tools import tostr
@@ -26,8 +27,9 @@ def require_login(fun):
     @functools.wraps(fun)
     def wrapper(RequestHandler, *args, **kwargs):
         if not RequestHandler.get_current_user():
-            return False
+            RequestHandler.write(dict(errcode=RET.SESSIONERR, errmsg=RMS.SESSIONERR))
         else:
+            print fun
             fun(RequestHandler, *args, **kwargs)
     return wrapper
 
@@ -62,7 +64,7 @@ def checktoken(fun):
             except Exception as e:
                 return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：请求参数无效')
             else:
-                if diff_timestamp > REQUEST_TIMEOUT or diff_timestamp < 0:
+                if abs(diff_timestamp) > REQUEST_TIMEOUT:
                     return RequestHandler.send_error(403, msg='服务器拒绝了你，原因：请求超时')
             # 为每个用户颁发的唯一id
             Authorization = None
@@ -77,7 +79,10 @@ def checktoken(fun):
                 except Exception as e:
                     logging.error(e)
                 else:
-                    sd = json.loads(sd)
+                    try:
+                        sd = json.loads(sd)
+                    except Exception as e:
+                        sd={}
                     Authorization = sd.get('authorization', '000000')
                     Uid = sd.get('uid', '000000')
             # 进行加密匹配
@@ -112,7 +117,8 @@ def api_authority(fun):
             roleid = session_data.get('roleid') if session_data.get(
                 'roleid') else '000000'
         # 获取角色的接口
-        roleapi = RequestHandler.redis.hget('roleapi_cache', roleid)
+        roleapi = RequestHandler.redis.hget('roleapi_cache', roleid) #开发阶段屏蔽
+        # roleapi = None
         if not roleapi:
             sql = 'SELECT (SELECT sa_uri FROM sys_api WHERE a.ra_apiid = sa_id) AS ra_uri, ra_get,ra_post,ra_put,ra_delete FROM sys_roleapi AS a WHERE ra_roleid=%s'
             ret = yield db.fetchall(sql, args=(roleid,))

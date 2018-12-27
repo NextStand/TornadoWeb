@@ -7,7 +7,7 @@ settings = dict(
     static_path=os.path.join(os.path.dirname(__file__), "static"),
     template_path=os.path.join(os.path.dirname(__file__), "templates"),
     cookie_secret="FhLXI+BRRomtuaG47hoXEg3JCdi0BUi8vrpWmoxaoyI=",
-    xsrf_cookies=True,
+    xsrf_cookies=False,
     debug=True,
     login_url='/login'
 )
@@ -15,26 +15,17 @@ settings = dict(
 
 # Database configuration parameters
 database_options = dict(
-    host="127.0.0.1",
-    db="db_tornado",
-    user="root",
-    password="hanmo"
+    host="94.191.13.239",
+    db="db_luckdraw",
+    user="LuckDraw",
+    password="LuckDraw"
 )
 
 # Redis config
 redis_options = dict(
-    host="127.0.0.1",
-    port=6379
-)
-
-# Email config
-email_options = dict(
-    smtpHost='smtp.163.com',    # smtp主机地址
-    smtpPort='25',  # smtp端口
-    sslPort='587',  # SSL连接端口，没有就不写
-    username='18215676683@163.com', # 邮箱用户名
-    password='helloworld123',   # 授权密码
-    identity='地名公众服务信息平台' #单位名称信息
+    host="94.191.13.239",
+    port=6379,
+    password='LuckDraw'
 )
 
 
@@ -44,3 +35,5 @@ log_level = "debug"
 
 # Cipher encryption key
 passwd_hash_key = "BLUE"
+# 默认密码
+passwd_default='123'

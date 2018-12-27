@@ -12,8 +12,7 @@ class SysDal(object):
         :param uid:str 用户名
         :param pwd:str 密码
         """
-        sql = 'SELECT u_uid,u_username,\
-                (SELECT ru_roleid FROM sys_roleuser WHERE ru_userid=u_uid) AS u_roleid\
-                FROM sys_users WHERE u_username=%s AND u_password=%s'
+        sql = 'SELECT cu_userid,cu_usercode,cu_username,cu_avator,cu_state,\
+                (SELECT ru_roleid FROM sys_roleuser WHERE ru_userid=cu_userid) AS u_roleid\
+                FROM comp_sysuer WHERE cu_usercode=%s AND cu_password=%s AND cu_state=0'
         return db.fetchone(sql, args=(uid, pwd))
-        pass
