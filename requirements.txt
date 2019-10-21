@@ -32,5 +32,5 @@ six==1.11.0
 tormysql==0.4.0
 tornado==5.1
 tornado-celery==0.3.5
-urllib3==1.23
+urllib3==1.24.2
 xmltodict==0.11.0
