@@ -7,7 +7,7 @@ celery==3.1.25
 certifi==2018.8.24
 cffi==1.11.5
 chardet==3.0.4
-cryptography==2.3.1
+cryptography==3.2
 enum34==1.1.6
 futures==3.2.0
 greenlet==0.4.14
