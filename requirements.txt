@@ -22,7 +22,7 @@ pycparser==2.18
 pycrypto==2.6.1
 PyMySQL==0.9.2
 pytz==2018.5
-PyYAML==3.13
+PyYAML==5.4
 qiniu==7.2.2
 redis==2.10.6
 requests==2.19.1
